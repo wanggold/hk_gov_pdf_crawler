@@ -153,6 +153,12 @@ Examples:
     parser.add_argument('--force-update', 
                        action='store_true',
                        help='Force re-download of all files (ignore incremental updates)')
+    parser.add_argument('--full-scan', 
+                       action='store_true',
+                       help='Disable incremental updates, scan everything (ignore cache)')
+    parser.add_argument('--cache-max-age', 
+                       type=int, default=24,
+                       help='Maximum age in hours for cached pages (default: 24)')
     parser.add_argument('--disable-advanced', 
                        action='store_true',
                        help='Disable advanced discovery features (sitemap, search, archives)')
@@ -268,6 +274,15 @@ Examples:
         if args.force_update:
             print("🔄 Force update mode enabled - will re-download all files")
             logger.info("Force update mode enabled")
+        
+        if args.full_scan:
+            print("🔍 Full scan mode enabled - ignoring discovery cache")
+            logger.info("Full scan mode enabled")
+            crawler.use_incremental_updates = False
+        
+        if args.cache_max_age != 24:
+            print(f"⏰ Cache max age set to {args.cache_max_age} hours")
+            crawler.cache_max_age_hours = args.cache_max_age
             crawler.use_incremental_updates = False
         
         # Run dry-run analysis or actual crawling

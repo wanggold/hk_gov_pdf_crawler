@@ -51,9 +51,14 @@ class PDFCrawler:
         self.browser_handler = None  # Lazy initialization
         self.progress_reporter = ProgressReporter()
         
+        # Initialize discovery cache for incremental updates
+        from discovery_cache import DiscoveryCache
+        self.discovery_cache = DiscoveryCache()
+        
         # Advanced features flags
         self.use_comprehensive_discovery = True
         self.use_incremental_updates = True
+        self.cache_max_age_hours = getattr(config.settings, 'cache_max_age_hours', 24)
         
         # State tracking
         self.visited_urls: Set[str] = set()
@@ -189,6 +194,11 @@ class PDFCrawler:
                 try:
                     self.logger.info(f"Processing seed URL: {seed_url}")
                     
+                    # Check if we should skip this URL based on cache
+                    if self.discovery_cache.should_skip_page(seed_url, self.cache_max_age_hours):
+                        self.logger.info(f"⏭️  Skipping recently crawled URL: {seed_url}")
+                        continue
+                    
                     # Use comprehensive discovery if enabled
                     if self.use_comprehensive_discovery:
                         discovered_urls = self.url_discovery.discover_comprehensive_urls(
@@ -206,11 +216,20 @@ class PDFCrawler:
                     urls_crawled += len(discovered_urls)
                     self.logger.info(f"Discovered {len(discovered_urls)} URLs from {seed_url}")
                     
-                    # Find PDF links on each discovered URL
+                    # Find PDF links on each discovered URL with cache optimization
+                    page_pdf_count = 0
                     for url in discovered_urls[:dept_config.max_pages]:  # Respect page limit
                         try:
+                            # Skip recently crawled pages
+                            if self.discovery_cache.should_skip_page(url, self.cache_max_age_hours):
+                                continue
+                            
                             pdf_links = self.url_discovery.find_pdf_links(url)
                             all_pdf_urls.extend(pdf_links)
+                            page_pdf_count += len(pdf_links)
+                            
+                            # Cache the page crawl
+                            self.discovery_cache.cache_page_crawl(url, len(pdf_links))
                             
                             # If no PDFs found and browser automation is enabled, try browser
                             if not pdf_links and self.config.settings.enable_browser_automation:
@@ -246,26 +265,47 @@ class PDFCrawler:
             # Remove duplicate PDF URLs
             unique_pdf_urls = list(set(all_pdf_urls))
             
-            # Validate PDF URLs to get accurate count
-            self.logger.info(f"Validating {len(unique_pdf_urls)} discovered URLs for {dept_config.name}...")
-            validated_pdf_urls = []
+            # Cache discovered PDFs and filter to new ones only
+            if unique_pdf_urls:
+                self.discovery_cache.cache_discovered_pdfs(unique_pdf_urls, dept_config.name)
+                
+                # Filter to only new PDFs for incremental updates
+                if self.use_incremental_updates:
+                    new_pdf_urls = self.discovery_cache.get_new_pdfs_only(unique_pdf_urls)
+                    skipped_count = len(unique_pdf_urls) - len(new_pdf_urls)
+                    
+                    if skipped_count > 0:
+                        self.logger.info(f"⏭️  Skipped {skipped_count} previously discovered PDFs")
+                    
+                    validated_pdf_urls = new_pdf_urls
+                else:
+                    validated_pdf_urls = unique_pdf_urls
+            else:
+                validated_pdf_urls = []
             
-            for url in unique_pdf_urls:
-                if self.file_downloader._validate_pdf_url(url):
-                    validated_pdf_urls.append(url)
+            # Validate PDF URLs to get accurate count (only for new PDFs)
+            if validated_pdf_urls:
+                self.logger.info(f"Validating {len(validated_pdf_urls)} new PDF URLs for {dept_config.name}...")
+                final_pdf_urls = []
+                
+                for url in validated_pdf_urls:
+                    if self.file_downloader._validate_pdf_url(url):
+                        final_pdf_urls.append(url)
+                
+                validated_pdf_urls = final_pdf_urls
             
             pdfs_found = len(validated_pdf_urls)
             
-            self.logger.info(f"Found {pdfs_found} valid PDF URLs for {dept_config.name} (filtered from {len(unique_pdf_urls)} candidates)")
+            self.logger.info(f"Found {pdfs_found} new valid PDF URLs for {dept_config.name}")
             
             # Output discovered PDF URLs for user review
             if validated_pdf_urls:
-                self.logger.info(f"📋 Valid PDF URLs discovered for {dept_config.name}:")
+                self.logger.info(f"📋 New PDF URLs discovered for {dept_config.name}:")
                 for i, url in enumerate(validated_pdf_urls[:10], 1):  # Show first 10
                     self.logger.info(f"  {i:2d}. {url}")
                 if len(validated_pdf_urls) > 10:
-                    self.logger.info(f"  ... and {len(validated_pdf_urls) - 10} more PDFs")
-                self.logger.info(f"📊 Total: {len(validated_pdf_urls)} valid PDFs ready for download")
+                    self.logger.info(f"  ... and {len(validated_pdf_urls) - 10} more new PDFs")
+                self.logger.info(f"📊 Total: {len(validated_pdf_urls)} new PDFs ready for download")
             
             self.progress_reporter.track_discovery(dept_config.name, urls_crawled, pdfs_found)
             
