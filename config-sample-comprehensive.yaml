@@ -1,0 +1,89 @@
+# Comprehensive Configuration for HK Government PDF Crawler
+# This configuration includes all major HK government departments with optimized settings
+
+departments:
+  buildings_department:
+    name: "Buildings Department"
+    seed_urls:
+      - "https://www.bd.gov.hk/en/resources/codes-and-references/codes-and-design-manuals/index.html"
+      - "https://www.bd.gov.hk/en/resources/codes-and-references/practice-notes-and-circular-letters/index_pnap.html"
+      - "https://www.bd.gov.hk/en/resources/codes-and-references/practice-notes-and-circular-letters/index_pnap_adv.html"
+    max_depth: 3
+    max_pages: 800
+    time_limit: 2400  # 40 minutes
+    document_types:
+      - "CoP"
+      - "PNAP"
+      - "Practice Note"
+
+  labour_department:
+    name: "Labour Department"
+    seed_urls:
+      - "https://www.labour.gov.hk/eng/public/content2_8.htm"
+      - "https://www.labour.gov.hk/eng/legislat/contentB3.htm"
+      - "https://www.labour.gov.hk/eng/public/oh/index.htm"
+    max_depth: 3
+    max_pages: 600
+    time_limit: 1800  # 30 minutes
+
+  environmental_protection_department:
+    name: "Environmental Protection Department"
+    seed_urls:
+      - "https://www.epd.gov.hk/epd/english/environmentinhk/air/guide_ref/guide_ref.html"
+      - "https://www.epd.gov.hk/epd/english/environmentinhk/water/guide_ref/guide_ref.html"
+      - "https://www.epd.gov.hk/epd/english/environmentinhk/waste/guide_ref/guide_ref.html"
+    max_depth: 3
+    max_pages: 500
+    time_limit: 1800
+
+  fire_services_department:
+    name: "Fire Services Department"
+    seed_urls:
+      - "https://www.hkfsd.gov.hk/eng/source/safety/index.html"
+      - "https://www.hkfsd.gov.hk/eng/source/forms/index.html"
+    max_depth: 2
+    max_pages: 300
+    time_limit: 1200
+
+  food_and_environmental_hygiene_department:
+    name: "Food and Environmental Hygiene Department"
+    seed_urls:
+      - "https://www.fehd.gov.hk/english/licensing/index.html"
+      - "https://www.fehd.gov.hk/english/food_safety/index.html"
+    max_depth: 3
+    max_pages: 400
+    time_limit: 1500
+
+  lands_department:
+    name: "Lands Department"
+    seed_urls:
+      - "https://www.landsd.gov.hk/en/resources/forms-and-publications/forms.html"
+      - "https://www.landsd.gov.hk/en/resources/forms-and-publications/publications.html"
+    max_depth: 2
+    max_pages: 300
+    time_limit: 1200
+
+  development_bureau:
+    name: "Development Bureau"
+    seed_urls:
+      - "https://www.devb.gov.hk/en/publications-and-press-releases/publications/index.html"
+    max_depth: 2
+    max_pages: 200
+    time_limit: 900
+
+# Optimized settings for comprehensive crawling
+settings:
+  delay_between_requests: 1.5
+  max_concurrent_downloads: 4
+  respect_robots_txt: true
+  user_agent: "HK-PDF-Crawler/1.0 (Research Purpose)"
+  enable_browser_automation: true
+  request_timeout: 45
+
+# Flexible storage with S3 backup
+storage:
+  local_path: "./downloads"
+  organize_by_department: true
+  s3_enabled: true
+  s3_bucket: "hk-government-pdfs"
+  s3_prefix: "comprehensive-crawl/"

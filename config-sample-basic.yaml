@@ -1,0 +1,36 @@
+# Basic Configuration for HK Government PDF Crawler
+# This is a minimal configuration suitable for getting started
+
+departments:
+  buildings_department:
+    name: "Buildings Department"
+    seed_urls:
+      - "https://www.bd.gov.hk/en/resources/codes-and-references/codes-and-design-manuals/index.html"
+      - "https://www.bd.gov.hk/en/resources/codes-and-references/practice-notes-and-circular-letters/index_pnap.html"
+    max_depth: 2
+    max_pages: 200
+    time_limit: 900  # 15 minutes
+
+  labour_department:
+    name: "Labour Department"
+    seed_urls:
+      - "https://www.labour.gov.hk/eng/public/content2_8.htm"
+      - "https://www.labour.gov.hk/eng/legislat/contentB3.htm"
+    max_depth: 2
+    max_pages: 150
+    time_limit: 600  # 10 minutes
+
+# Conservative settings for initial testing
+settings:
+  delay_between_requests: 2.0
+  max_concurrent_downloads: 2
+  respect_robots_txt: true
+  user_agent: "HK-PDF-Crawler/1.0"
+  enable_browser_automation: false  # Disabled for basic mode
+  request_timeout: 30
+
+# Local storage only
+storage:
+  local_path: "./downloads"
+  organize_by_department: true
+  s3_enabled: false

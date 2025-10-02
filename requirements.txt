@@ -1,0 +1,25 @@
+# Core HTTP and web scraping
+requests>=2.28.0
+beautifulsoup4>=4.11.0
+lxml>=4.9.0
+
+# Browser automation
+selenium>=4.8.0
+
+# Configuration and data handling
+pyyaml>=6.0
+
+# Progress tracking
+tqdm>=4.64.0
+
+# AWS S3 integration (optional)
+boto3>=1.26.0
+
+# URL utilities
+urllib3>=1.26.0
+
+# Testing dependencies
+pytest>=7.0.0              # Testing framework
+pytest-cov>=4.0.0          # Coverage reporting
+responses>=0.23.0           # HTTP request mocking
+moto>=4.2.0                # AWS service mocking

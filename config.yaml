@@ -1,0 +1,32 @@
+departments:
+  buildings_department:
+    name: "Buildings Department"
+    seed_urls:
+      - "https://www.bd.gov.hk/en/resources/codes-and-references/codes-and-design-manuals/index.html"
+      - "https://www.bd.gov.hk/en/resources/codes-and-references/practice-notes-and-circular-letters/index_pnap.html"
+    max_depth: 3
+    max_pages: 500
+    time_limit: 1800
+    
+  labour_department:
+    name: "Labour Department"
+    seed_urls:
+      - "https://www.labour.gov.hk/eng/public/content2_8.htm"
+    max_depth: 2
+    max_pages: 300
+    time_limit: 1200
+
+settings:
+  delay_between_requests: 1.5
+  max_concurrent_downloads: 3
+  respect_robots_txt: true
+  user_agent: "HK-PDF-Crawler/1.0"
+  enable_browser_automation: true
+  request_timeout: 30
+
+storage:
+  local_path: "./downloads"
+  organize_by_department: true
+  s3_enabled: false
+  s3_bucket: null
+  s3_prefix: null

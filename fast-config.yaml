@@ -1,0 +1,14 @@
+settings:
+  delay_between_requests: 0.3        # Reduced from 1.0
+  max_concurrent_downloads: 15       # Increased from 5
+  respect_robots_txt: true
+  user_agent: "HK-PDF-Crawler/1.0"
+  enable_browser_automation: true
+  request_timeout: 30
+
+storage:
+  local_path: "./downloads"
+  organize_by_department: true
+  s3_enabled: true
+  s3_bucket: "hk-gov-pdf-crawler-905418162919"
+  s3_prefix: "hk-government-pdfs/"

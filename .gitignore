@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+crawler_*.log
+*_successful_downloads_*.txt
+*_failed_downloads_*.txt
+
+# Downloaded files
+downloads/
+
+# Temporary files
+*.tmp
+*.temp
+
+# AWS credentials
+.aws/
+credentials
+
+# Test cache
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Size limit patch (temporary file)
+size_limit_patch.py
+test_advanced_features_original.py
