@@ -60,3 +60,4 @@ htmlcov/
 # Size limit patch (temporary file)
 size_limit_patch.py
 test_advanced_features_original.py
+cache/

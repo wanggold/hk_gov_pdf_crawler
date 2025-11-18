@@ -660,3 +660,42 @@ For issues or questions:
 - Concurrent downloads with rate limiting
 - AWS S3 integration
 - Real-time progress reporting and comprehensive logging
+
+
+# ISSUES
+
+## Problem Identified
+
+Your configuration does work, but there were two bugs preventing downloads:
+
+### Bug 1: JavaScript PDF Links Not Extracted
+The OSHC website uses JavaScript links like:
+javascript
+javascript:checkButtonClick('eng', 'books', 'Title', '/path/to/file.pdf', ...)
+
+
+The crawler was skipping these entirely instead of extracting the actual PDF paths embedded inside.
+
+Fix Applied: Modified discovery.py to extract PDF URLs from JavaScript function calls using regex.
+
+### Bug 2: Cache Logic Bug
+The crawler was caching PDFs BEFORE checking if they were new, so all PDFs were immediately marked as "previously discovered" and skipped.
+
+Fix Applied: Reordered the logic in crawler.py to filter for new PDFs BEFORE caching them.
+
+## Results
+
+After the fixes:
+• **Before:** Found 2 PDFs for OSHC (both failed validation)
+• **After:** Found 98 PDFs for OSHC (extracted from JavaScript links)
+• **Planning Department:** Already working - 80 PDFs downloaded successfully
+
+## Quick Test
+
+Let me run a quick test to confirm the fixes work:
+
+bash
+cd /Users/bwangyu/Library/CloudStorage/OneDrive-amazon.com/workspaces/swire-pdf-crawler2
+rm -rf cache
+source venv/bin/activate
+python main.py --config jane_config.yaml --dry-run

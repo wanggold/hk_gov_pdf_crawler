@@ -265,11 +265,8 @@ class PDFCrawler:
             # Remove duplicate PDF URLs
             unique_pdf_urls = list(set(all_pdf_urls))
             
-            # Cache discovered PDFs and filter to new ones only
+            # Filter to only new PDFs for incremental updates BEFORE caching
             if unique_pdf_urls:
-                self.discovery_cache.cache_discovered_pdfs(unique_pdf_urls, dept_config.name)
-                
-                # Filter to only new PDFs for incremental updates
                 if self.use_incremental_updates:
                     new_pdf_urls = self.discovery_cache.get_new_pdfs_only(unique_pdf_urls)
                     skipped_count = len(unique_pdf_urls) - len(new_pdf_urls)
@@ -280,6 +277,9 @@ class PDFCrawler:
                     validated_pdf_urls = new_pdf_urls
                 else:
                     validated_pdf_urls = unique_pdf_urls
+                
+                # Cache discovered PDFs AFTER filtering
+                self.discovery_cache.cache_discovered_pdfs(validated_pdf_urls, dept_config.name)
             else:
                 validated_pdf_urls = []
             

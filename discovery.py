@@ -109,8 +109,22 @@ class URLDiscovery:
                 href = link['href']
                 link_text = link.get_text(strip=True)
                 
-                # Skip javascript links and empty hrefs
-                if href.startswith('javascript:') or href.startswith('#') or not href.strip():
+                # Handle JavaScript links that contain PDF URLs
+                if href.startswith('javascript:'):
+                    # Extract PDF URL from JavaScript function calls
+                    import re
+                    # Look for PDF paths in the JavaScript code
+                    pdf_matches = re.findall(r'["\']([^"\']*\.pdf[^"\']*)["\']', href, re.IGNORECASE)
+                    for pdf_path in pdf_matches:
+                        # Skip if it's just a variable name or function parameter name
+                        if '/' in pdf_path or pdf_path.startswith('http'):
+                            absolute_url = urljoin(url, pdf_path)
+                            if self.is_pdf_link(absolute_url, link_text):
+                                pdf_links.append(absolute_url)
+                    continue
+                
+                # Skip empty hrefs and anchors
+                if href.startswith('#') or not href.strip():
                     continue
                 
                 # Convert to absolute URL
