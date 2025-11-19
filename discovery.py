@@ -130,6 +130,22 @@ class URLDiscovery:
                 # Convert to absolute URL
                 absolute_url = urljoin(url, href)
                 
+                # Extract PDF from viewer URLs (e.g., PDF.js viewer with file= parameter)
+                if 'viewer.html' in absolute_url.lower() or 'pdfjs' in absolute_url.lower():
+                    import re
+                    from urllib.parse import urlparse, parse_qs, unquote
+                    # Try to extract PDF URL from query parameters
+                    parsed = urlparse(absolute_url)
+                    params = parse_qs(parsed.query)
+                    if 'file' in params:
+                        pdf_url = unquote(params['file'][0])
+                        # Make it absolute if needed
+                        if pdf_url.startswith('http'):
+                            pdf_links.append(pdf_url)
+                        else:
+                            pdf_links.append(urljoin(absolute_url, pdf_url))
+                        continue
+                
                 # Check if this is a PDF link
                 if self.is_pdf_link(absolute_url, link_text):
                     pdf_links.append(absolute_url)

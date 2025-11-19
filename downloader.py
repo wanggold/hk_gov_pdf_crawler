@@ -428,6 +428,12 @@ class FileDownloader:
         Returns:
             True if URL points to a PDF, False otherwise
         """
+        # Skip HEAD validation for AWS signed URLs (they expire quickly)
+        if 'X-Amz-Signature' in url or 'X-Amz-Algorithm' in url:
+            if url.lower().endswith('.pdf') or '.pdf?' in url.lower():
+                logging.info(f"Skipping HEAD validation for AWS signed URL: {url[:100]}...")
+                return True
+        
         try:
             response = self.session.head(
                 url, 
